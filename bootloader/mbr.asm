@@ -1,19 +1,31 @@
-[org 0x7C00]         ; BIOS loads boot sector to this address
+[org 0x7C00]                ; BIOS loads boot sector to this address
+mov sp, 0x7C00              ; Temporary stack
+KERNEL_OFFSET equ 0x1000
 
 ; ========================
 ; Start in 16-bit real mode
 ; ========================
+[bits 16]
 main:
     ; print 16-bit message
     mov ax, msg16
     call print
+    call print_nl
     cli                 ; Disable interrupts
     xor ax, ax          ; Clear segment registers
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x7C00      ; Temporary stack
 
+    mov ax, msg_boot
+    call print
+    call print_nl
+
+    ; load kernel from boot sector
+    mov bx, KERNEL_OFFSET ; Read from disk and store in 0x1000
+    mov dh, 2
+    mov dl, [BOOT_DRIVE]
+    call disk_load
 
     call enable_a20     ; Enable access above 1MB
     call setup_gdt      ; Load GDT
@@ -44,7 +56,8 @@ protected_mode_start:
     mov ebx, msg32
     call print_string_pm
 
-    ; Hang
+    ; Enter kernel
+    call KERNEL_OFFSET
     jmp $
 
 ; ========================
@@ -83,16 +96,23 @@ gdt_descriptor:
 
 gdt_end:
 
+
+%include './boot_sect.asm'
+BOOT_DRIVE db 0x80
+
 ; ========================
 ; Strings, for debugging
 ; ========================
 %include './print.asm'
+%include './print_hex.asm'
 %include './print32.asm'
 
 msg16:
     db 'wsg 16-bit', 0
 msg32:
     db 'wagwan 32-bit', 0
+msg_boot:
+    db 'mi get dat bombaclaat kernel', 0
 
 ; ========================
 ; Boot Signature (MUST be last 2 bytes)
