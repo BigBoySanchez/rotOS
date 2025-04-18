@@ -105,6 +105,7 @@ sudo ./scripts/linux-tools.sh
 sudo ./scripts/linux-build.sh
 
 # Run OS in qemu
+cd build
 qemu-system-x86_64 os-image.bin
 ```
 
