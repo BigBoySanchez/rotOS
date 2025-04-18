@@ -97,9 +97,14 @@ make
 Set your current directory to **rotOS**
 
 Run the following:
-```cmd
+```bash
+# Make scripts executable
+sudo chmod +x ./scripts/*.sh
+
 sudo ./scripts/linux-tools.sh
 sudo ./scripts/linux-build.sh
+
+# Run OS in qemu
 qemu-system-x86_64 os-image.bin
 ```
 
