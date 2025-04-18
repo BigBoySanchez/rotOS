@@ -10,7 +10,7 @@ KERNEL_ENTRY_SRC="kernel_entry.asm"
 BUILD_DIR="./build"
 MBR_BIN="$BUILD_DIR/mbr.bin"
 KERNEL_BIN="$BUILD_DIR/kernel.bin"
-FINAL_BIN="$BUILD_DIR/os-image.bin"
+FINAL_BIN="$BUILD_DIR/../os-image.bin"
 
 # Temporarily add bin folder to path
 export PATH="./cross-tools/cross/bin:$PATH"
