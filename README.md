@@ -112,5 +112,3 @@ Terminal is ready.
 ```
 
 ## Notes
-- Still doesn't work
-- 0cXX means that the drive is invalid
