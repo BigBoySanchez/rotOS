@@ -114,6 +114,41 @@ void term_print(const char* str) {
     }
 }
 
+// Memory management definitions
+#define PAGE_PRESENT     0x1
+#define PAGE_WRITE       0x2
+#define PAGE_SIZE_FLAG   0x80
+
+static uint32_t page_directory[1024] __attribute__((aligned(4096)));
+static uint32_t first_page_table[1024] __attribute__((aligned(4096)));
+
+// Initialize paging (identity map first 4MB)
+void initialize_memory(void) {
+    // Clear page directory and first page table
+    for (int i = 0; i < 1024; i++) {
+        page_directory[i] = 0;
+        first_page_table[i] = 0;
+    }
+    // Identity map first 4MB using 4KB pages
+    for (int i = 0; i < 1024; i++) {
+        first_page_table[i] = (i * 0x1000) | PAGE_PRESENT | PAGE_WRITE;
+    }
+    // Point first entry of page directory to our page table
+    page_directory[0] = ((uint32_t)first_page_table) | PAGE_PRESENT | PAGE_WRITE;
+
+    // Load page directory into CR3
+    asm volatile("movl %0, %%cr3" :: "r"(page_directory));
+
+    // Enable paging by setting the PG bit in CR0
+    uint32_t cr0;
+    // Read CR0
+    asm volatile("movl %%cr0, %0" : "=r"(cr0));
+    // Set PG bit (bit 31)
+    cr0 |= 0x80000000;
+    // Write back to CR0
+    asm volatile("movl %0, %%cr0" :: "r"(cr0));
+}
+
 // Kernel entry point
 void kernel_main(void) {
     term_init();
@@ -124,4 +159,8 @@ void kernel_main(void) {
     term_setcolor(WHITE, BLACK);
     term_print("System initialized successfully.\n");
     term_print("Terminal is ready.\n");
+
+    // Initialize memory and enable paging
+    initialize_memory();
+    term_print("Memory initialized.\n");
 }
