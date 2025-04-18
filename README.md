@@ -22,11 +22,14 @@ function kernel_main():
 ```
 
 ## How to Run
+Start **WSL**
 Set your current directory to **rotOS**
 
-Run the following in powershell:
+Run the following:
 ```cmd
-qemu-system-x86_64 os-image1.bin
+sudo ./scripts/linux-tools.sh
+sudo ./scripts/linux-build.sh
+qemu-system-x86_64 os-image.bin
 ```
 
 ## Expected Output
@@ -38,5 +41,5 @@ Terminal is ready.
 ```
 
 ## Notes
-- I need to find a better way to cross-compile. It's too complicated to learn from scratch.
-- It might be possible to build with x64 compiler anyway
+- Still doesn't work
+- 0cXX means that the drive is invalid
