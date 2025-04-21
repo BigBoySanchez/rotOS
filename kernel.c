@@ -1,5 +1,10 @@
 #include <stddef.h>
 #include <stdint.h>
+#include "interrupt/idt.h"
+// #include "interrupt/isr.h"
+// #include "interrupt/irq.h"
+// #include "drivers/timer.h"
+// #include "drivers/keyboard.h"
 
 // Ensure we're using x86 compiler
 #if !defined(__i386__)
@@ -107,6 +112,10 @@ void term_putchar(char c) {
     }
 }
 
+void term_putc(char c) {
+    term_putchar(c);
+}
+
 // Print a string
 void term_print(const char* str) {
     for (size_t i = 0; str[i] != '\0'; i++) {
@@ -149,18 +158,60 @@ void initialize_memory(void) {
     asm volatile("movl %0, %%cr0" :: "r"(cr0));
 }
 
-// Kernel entry point
 void kernel_main(void) {
     term_init();
-    
-    term_setcolor(GREEN, BLACK);
-    term_print("Welcome to rotOS!\n");
-    
-    term_setcolor(WHITE, BLACK);
-    term_print("System initialized successfully.\n");
-    term_print("Terminal is ready.\n");
+    term_print("KERNEL REACHED\n");
 
-    // Initialize memory and enable paging
     initialize_memory();
     term_print("Memory initialized.\n");
+
+    idt_install();
+
+    
+    term_print("Interrupts installed.\n");
+
+    for(;;);
 }
+
+// // Kernel entry point
+// void kernel_main(void) {
+//     term_init();
+    
+//     term_setcolor(GREEN, BLACK);
+//     term_print("Welcome to rotOS!\n");
+    
+//     term_setcolor(WHITE, BLACK);
+//     term_print("System initialized successfully.\n");
+//     term_print("Terminal is ready.\n");
+
+//     // Initialize memory and enable paging
+//     initialize_memory();
+//     term_print("Memory initialized.\n");
+
+//     // Initialize Interrupts
+//     idt_install();  // Load the IDT
+//     isr_install();  // Install CPU exception handlers (ISRs 0-31)
+//     irq_install();  // Install hardware interrupt handlers (IRQs 0-15 -> Ints 32-47)
+
+//     // Initialize Timer (PIT) to 100 Hz
+//     timer_init(100);
+//     term_print("Timer initialized (100 Hz).\n");
+
+//     // Initialize Keyboard (Commented out for debugging)
+//     keyboard_init();
+//     term_print("Keyboard initialized.\n");
+
+//     // Enable interrupts
+//     asm volatile ("sti");
+//     term_print("Interrupts enabled. Type something!\n");
+
+//     // Infinite loop: Poll keyboard and print characters
+//     for(;;) {
+//         char c = keyboard_getchar(); // Get char from keyboard buffer (non-blocking)
+//         if (c != 0) {
+//             term_putc(c); // Print the character to the screen
+//         }
+//         // Yield CPU or do other tasks
+//         asm volatile ("hlt"); // Wait for next interrupt (timer or keyboard)
+//     }
+// }

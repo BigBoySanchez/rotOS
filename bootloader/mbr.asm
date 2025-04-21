@@ -112,7 +112,7 @@ msg16:
 msg32:
     db 'wagwan 32-bit', 0
 msg_boot:
-    db 'mi get dat bombaclaat kernel', 0
+    db 'mi get dat bombaclaat kernel v0.1', 0
 
 ; ========================
 ; Boot Signature (MUST be last 2 bytes)
