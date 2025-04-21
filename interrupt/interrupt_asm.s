@@ -102,8 +102,8 @@ irq_common_stub:
     ; EAX currently holds the original DS value, ESP points to it.
     ; The full structure starts just above the pushed DS.
     mov eax, esp   ; Get pointer to the location of the pushed DS
-    add eax, 4     ; Point EAX to the start of the 'pusha' registers (which matches the layout of registers_t)
-    push eax       ; Push the pointer to registers_t struct as argument for C handler
+    ; eax already points to start of registers_t (saved DS)
+    push eax       ; Push pointer to registers_t struct for C handler
 
     call irq_handler ; Call the C IRQ handler
 

@@ -2,6 +2,8 @@
 #include "idt.h"
 #include "io.h"
 #include <stddef.h> // For NULL
+#include <stdint.h> // For uint8_t
+
 
 // PIC ports
 #define PIC1_CMD    0x20
@@ -16,6 +18,7 @@
 
 // Array for custom IRQ handlers
 static isr_t irq_handlers[16] = {0}; // IRQ 0-15
+
 
 // External assembly IRQ stubs (defined in interrupt_asm.s)
 extern void irq0();
@@ -34,6 +37,16 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+
+extern void term_putc(char c);     // from kernel.c
+extern void term_print(const char*);
+
+static void print_dec(uint8_t num) {
+    if (num >= 10) {
+        print_dec(num / 10);
+    }
+    term_putc('0' + (num % 10));
+}
 
 // Function to remap the PIC controller IRQs
 static void pic_remap(int offset1, int offset2) {
@@ -123,7 +136,7 @@ void irq_handler(registers_t* regs) {
     } else {
         term_print("Unhandled IRQ received!\n");
         term_print("IRQ number: ");
-        term_print(irq);
+        print_dec(irq);
         term_print("\n");
     }
 

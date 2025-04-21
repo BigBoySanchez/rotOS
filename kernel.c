@@ -1,10 +1,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "interrupt/idt.h"
-// #include "interrupt/isr.h"
-// #include "interrupt/irq.h"
-// #include "drivers/timer.h"
-// #include "drivers/keyboard.h"
+#include "drivers/timer.h"
+#include "drivers/keyboard.h"
+
 
 // Ensure we're using x86 compiler
 #if !defined(__i386__)
@@ -158,6 +157,7 @@ void initialize_memory(void) {
     asm volatile("movl %0, %%cr0" :: "r"(cr0));
 }
 
+
 void kernel_main(void) {
     term_init();
     term_print("KERNEL REACHED\n");
@@ -168,7 +168,22 @@ void kernel_main(void) {
     idt_install();
     term_print("Interrupts installed.\n");
 
-    for(;;);
+    timer_init(100);
+    term_print("Timer initialized (100 Hz).\n");
+
+    keyboard_init();
+    term_print("Keyboard initialized.\n");
+    
+    asm volatile ("sti");
+    term_print("Interrupts enabled. Type something!\n");
+
+    for(;;) {
+        char c = keyboard_getchar();
+        if (c != 0) {
+            term_putc(c);
+        }
+        asm volatile ("hlt");
+    }
 }
 
 // // Kernel entry point

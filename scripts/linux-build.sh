@@ -19,6 +19,9 @@ LIBC_DIR="./libc"
 MEMSET_SRC="$LIBC_DIR/string/memset.c"
 INTERRUPT_ASM="$INTERRUPT_DIR/interrupt_asm.s"
 KERNEL_ELF="$BUILD_DIR/kernel.elf"
+DRIVER_DIR="./drivers"
+TIMER_SRC="$DRIVER_DIR/timer.c"
+KEYBOARD_SRC="$DRIVER_DIR/keyboard.c"
 
 
 # Build flags
@@ -51,6 +54,12 @@ $TARGET-gcc $BUILD_FLAGS -c "$IRQ_SRC" -o "$BUILD_DIR/irq.o"
 # Compile interrupt_asm.s to object file
 nasm -f elf "$INTERRUPT_ASM" -o "$BUILD_DIR/interrupt_asm.o"
 
+# Compile timer.c to object file
+$TARGET-gcc $BUILD_FLAGS -c "$TIMER_SRC" -o "$BUILD_DIR/timer.o"
+
+# Compile keyboard.c to object file
+$TARGET-gcc $BUILD_FLAGS -c "$KEYBOARD_SRC" -o "$BUILD_DIR/keyboard.o"
+
 # Link kernel and kernel_entry to ELF file (with symbols)
 $TARGET-ld -Ttext 0x1000 -o "$KERNEL_ELF" \
     "$BUILD_DIR/kernel_entry.o" \
@@ -59,7 +68,9 @@ $TARGET-ld -Ttext 0x1000 -o "$KERNEL_ELF" \
     "$BUILD_DIR/idt.o" \
     "$BUILD_DIR/interrupt_asm.o" \
     "$BUILD_DIR/isr.o" \
-    "$BUILD_DIR/irq.o"
+    "$BUILD_DIR/irq.o" \
+    "$BUILD_DIR/timer.o" \
+    "$BUILD_DIR/keyboard.o"
 
 # Extract raw binary from ELF
 $TARGET-objcopy -O binary "$KERNEL_ELF" "$KERNEL_BIN"
