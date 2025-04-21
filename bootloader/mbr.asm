@@ -1,5 +1,8 @@
 [org 0x7C00]                ; BIOS loads boot sector to this address
 mov sp, 0x7C00              ; Temporary stack
+%ifndef KERNEL_SECTORS
+    %define KERNEL_SECTORS 2 ; default value, will be overridden by build script
+%endif
 KERNEL_OFFSET equ 0x1000
 
 ; ========================
@@ -16,6 +19,8 @@ main:
     mov ds, ax
     mov es, ax
     mov ss, ax
+    ; Save BIOS-supplied boot drive number (DL) for later disk operations
+    mov [BOOT_DRIVE], dl
 
     mov ax, msg_boot
     call print
@@ -23,7 +28,7 @@ main:
 
     ; load kernel from boot sector
     mov bx, KERNEL_OFFSET ; Read from disk and store in 0x1000
-    mov dh, 2
+    mov dh, KERNEL_SECTORS
     mov dl, [BOOT_DRIVE]
     call disk_load
 
@@ -98,7 +103,7 @@ gdt_end:
 
 
 %include './boot_sect.asm'
-BOOT_DRIVE db 0x80
+BOOT_DRIVE db 0x00
 
 ; ========================
 ; Strings, for debugging

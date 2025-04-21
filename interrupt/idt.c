@@ -1,6 +1,8 @@
 #include "idt.h"
 #include "libc/include/string.h" // For memset
 #include <stdint.h>
+#include "isr.h"
+#include "irq.h"
 
 // Declare the IDT array and pointer
 static idt_entry_t idt_entries[IDT_ENTRIES];
@@ -31,6 +33,9 @@ void idt_install(void)
     // Clear out the entire IDT, initializing it to zeros
     memset(&idt_entries, 0, sizeof(idt_entry_t) * IDT_ENTRIES);
 
+    // Install exception and IRQ handlers into IDT
+    isr_install();
+    irq_install();
 
     // Load the IDT using the assembly function
     idt_load(&idt_ptr);

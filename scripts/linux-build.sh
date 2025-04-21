@@ -20,6 +20,7 @@ MEMSET_SRC="$LIBC_DIR/string/memset.c"
 INTERRUPT_ASM="$INTERRUPT_DIR/interrupt_asm.s"
 KERNEL_ELF="$BUILD_DIR/kernel.elf"
 
+
 # Build flags
 BUILD_FLAGS="-ffreestanding -Wall -Wextra -I. -g"
 
@@ -28,11 +29,6 @@ export PATH="./cross-tools/cross/bin:$PATH"
 
 # Create build directory if it doesn't exist
 mkdir -p "$BUILD_DIR"
-
-# Assemble MBR
-cd "./bootloader"
-nasm -f bin "$MBR_SRC" -o "../$MBR_BIN"
-cd ../
 
 # Compile kernel_entry.asm to object file
 nasm -f elf "$KERNEL_ENTRY_SRC" -o "$BUILD_DIR/kernel_entry.o"
@@ -67,6 +63,16 @@ $TARGET-ld -Ttext 0x1000 -o "$KERNEL_ELF" \
 
 # Extract raw binary from ELF
 $TARGET-objcopy -O binary "$KERNEL_ELF" "$KERNEL_BIN"
+
+# Calculate how many 512‑byte sectors the kernel occupies
+KERNEL_SIZE=$(stat -c%s "$KERNEL_BIN")
+KERNEL_SECTORS=$(( (KERNEL_SIZE + 511) / 512 ))
+echo "Kernel size: $KERNEL_SIZE bytes ($KERNEL_SECTORS sectors)"
+
+# Assemble MBR with kernel sector count
+cd "./bootloader"
+nasm -f bin -DKERNEL_SECTORS=$KERNEL_SECTORS "$MBR_SRC" -o "../$MBR_BIN"
+cd ../
 
 # Concatenate MBR and kernel binary
 cat "$MBR_BIN" "$KERNEL_BIN" > "$FINAL_BIN"

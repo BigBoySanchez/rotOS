@@ -166,8 +166,6 @@ void kernel_main(void) {
     term_print("Memory initialized.\n");
 
     idt_install();
-
-    
     term_print("Interrupts installed.\n");
 
     for(;;);
