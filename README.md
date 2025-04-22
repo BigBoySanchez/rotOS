@@ -51,7 +51,6 @@ sudo ./scripts/linux-build.sh
 
 5. **Run in QEMU:**
 ```bash
-cd build
 qemu-system-x86_64 os-image.bin
 ```
 
