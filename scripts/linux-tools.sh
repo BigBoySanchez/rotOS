@@ -7,6 +7,7 @@ set -e
 # ===============================
 echo "Updating package list and installing prerequisites..."
 apt-get update
+apt-get upgrade -y
 apt-get install -y \
     gcc \
     g++ \
@@ -20,6 +21,9 @@ apt-get install -y \
     curl \
     wget \
     git \
+    nasm \
+    qemu-system qemu-utils \
+    gdb-multiarch \ 
 
 # ===============================
 # 2. Define Variables and Directories
