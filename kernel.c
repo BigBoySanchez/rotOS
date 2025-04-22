@@ -95,6 +95,12 @@ void term_putchar(char c) {
     if (c == '\n') {
         term_col = 0;
         term_row++;
+    } else if (c == '\b') {
+        if (term_col > 0) {
+            term_col--;
+            const size_t index = term_row * VGA_WIDTH + term_col;
+            vga_buffer[index] = vga_entry(' ', term_color);
+        }
     } else {
         const size_t index = term_row * VGA_WIDTH + term_col;
         vga_buffer[index] = vga_entry(c, term_color);
@@ -158,73 +164,72 @@ void initialize_memory(void) {
 }
 
 
-void kernel_main(void) {
-    term_init();
-    term_print("KERNEL REACHED\n");
-
-    initialize_memory();
-    term_print("Memory initialized.\n");
-
-    idt_install();
-    term_print("Interrupts installed.\n");
-
-    timer_init(100);
-    term_print("Timer initialized (100 Hz).\n");
-
-    keyboard_init();
-    term_print("Keyboard initialized.\n");
-    
-    asm volatile ("sti");
-    term_print("Interrupts enabled. Type something!\n");
-
-    for(;;) {
-        char c = keyboard_getchar();
-        if (c != 0) {
-            term_putc(c);
-        }
-        asm volatile ("hlt");
-    }
-}
-
-// // Kernel entry point
 // void kernel_main(void) {
 //     term_init();
-    
-//     term_setcolor(GREEN, BLACK);
-//     term_print("Welcome to rotOS!\n");
-    
-//     term_setcolor(WHITE, BLACK);
-//     term_print("System initialized successfully.\n");
-//     term_print("Terminal is ready.\n");
+//     term_print("KERNEL REACHED\n");
 
-//     // Initialize memory and enable paging
 //     initialize_memory();
 //     term_print("Memory initialized.\n");
 
-//     // Initialize Interrupts
-//     idt_install();  // Load the IDT
-//     isr_install();  // Install CPU exception handlers (ISRs 0-31)
-//     irq_install();  // Install hardware interrupt handlers (IRQs 0-15 -> Ints 32-47)
+//     idt_install();
+//     term_print("Interrupts installed.\n");
 
-//     // Initialize Timer (PIT) to 100 Hz
 //     timer_init(100);
 //     term_print("Timer initialized (100 Hz).\n");
 
-//     // Initialize Keyboard (Commented out for debugging)
 //     keyboard_init();
 //     term_print("Keyboard initialized.\n");
-
-//     // Enable interrupts
+    
 //     asm volatile ("sti");
 //     term_print("Interrupts enabled. Type something!\n");
 
-//     // Infinite loop: Poll keyboard and print characters
 //     for(;;) {
-//         char c = keyboard_getchar(); // Get char from keyboard buffer (non-blocking)
+//         char c = keyboard_getchar();
 //         if (c != 0) {
-//             term_putc(c); // Print the character to the screen
+//             term_putc(c);
 //         }
-//         // Yield CPU or do other tasks
-//         asm volatile ("hlt"); // Wait for next interrupt (timer or keyboard)
+//         asm volatile ("hlt");
 //     }
 // }
+
+// Kernel entry point
+void kernel_main(void) {
+    term_init();
+    
+    term_setcolor(GREEN, BLACK);
+    term_print("Welcome to rotOS!\n");
+    
+    term_setcolor(WHITE, BLACK);
+    term_print("System initialized successfully.\n");
+    term_print("Terminal is ready.\n");
+
+    // Initialize memory and enable paging
+    initialize_memory();
+    term_print("Memory initialized.\n");
+
+    // Initialize Interrupts
+    idt_install();  // Load the IDT
+    term_print("Interrupts installed.\n");
+
+    // Initialize Timer (PIT) to 100 Hz
+    timer_init(100);
+    term_print("Timer initialized (100 Hz).\n");
+
+    // Initialize Keyboard (Commented out for debugging)
+    keyboard_init();
+    term_print("Keyboard initialized.\n");
+
+    // Enable interrupts
+    asm volatile ("sti");
+    term_print("Interrupts enabled. Type something!\n");
+
+    // Infinite loop: Poll keyboard and print characters
+    for(;;) {
+        char c = keyboard_getchar(); // Get char from keyboard buffer (non-blocking)
+        if (c != 0) {
+            term_putc(c); // Print the character to the screen
+        }
+        // Yield CPU or do other tasks
+        asm volatile ("hlt"); // Wait for next interrupt (timer or keyboard)
+    }
+}
