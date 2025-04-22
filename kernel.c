@@ -92,26 +92,36 @@ static void term_scroll(void) {
 
 // Put a character on screen
 void term_putchar(char c) {
-    if (c == '\n') {
-        term_col = 0;
-        term_row++;
-    } else if (c == '\b') {
-        if (term_col > 0) {
-            term_col--;
+    
+    switch (c) {
+        case '\n':
+            term_col = 0;
+            term_row++;
+            break;
+        case '\b':
+            if (term_col > 0) {
+                term_col--;
+                const size_t index = term_row * VGA_WIDTH + term_col;
+                vga_buffer[index] = vga_entry(' ', term_color);
+            }
+            break;
+
+        /* TODO: add cases
+            case '\t':  // tab (advance to next 8‑column boundary)
+            case '\r':  // carriage return
+            case 0x1B: // ESC sequences
+        */
+        default:
             const size_t index = term_row * VGA_WIDTH + term_col;
-            vga_buffer[index] = vga_entry(' ', term_color);
-        }
-    } else {
-        const size_t index = term_row * VGA_WIDTH + term_col;
-        vga_buffer[index] = vga_entry(c, term_color);
-        term_col++;
+            vga_buffer[index] = vga_entry(c, term_color);
+            term_col++;
+            break;
     }
 
     if (term_col >= VGA_WIDTH) {
         term_col = 0;
         term_row++;
     }
-
     if (term_row >= VGA_HEIGHT) {
         term_scroll();
     }
@@ -121,14 +131,13 @@ void term_putc(char c) {
     term_putchar(c);
 }
 
-// Print a string
 void term_print(const char* str) {
     for (size_t i = 0; str[i] != '\0'; i++) {
         term_putchar(str[i]);
     }
 }
 
-// Memory management definitions
+ // Memory management definitions
 #define PAGE_PRESENT     0x1
 #define PAGE_WRITE       0x2
 #define PAGE_SIZE_FLAG   0x80
