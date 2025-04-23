@@ -7,6 +7,7 @@ set -e
 # ===============================
 echo "Updating package list and installing prerequisites..."
 apt-get update
+apt-get upgrade -y
 apt-get install -y \
     gcc \
     g++ \
@@ -20,6 +21,9 @@ apt-get install -y \
     curl \
     wget \
     git \
+    nasm \
+    qemu-system qemu-utils \
+    gdb-multiarch 
 
 # ===============================
 # 2. Define Variables and Directories
@@ -98,7 +102,7 @@ echo "Configuring binutils..."
     --prefix="$INSTALL_DIR" \
     --with-sysroot \
     --disable-nls \
-    --disable-werror \
+    --disable-werror
 
 echo "Compiling binutils..."
 make -j$(nproc)
@@ -118,7 +122,7 @@ echo "Configuring gcc..."
     --disable-nls \
     --enable-languages=c,c++ \
     --without-headers \
-    --disable-hosted-libstdcxx \
+    --disable-hosted-libstdcxx
 
 make all-gcc -j$(nproc)
 make all-target-libgcc -j$(nproc)

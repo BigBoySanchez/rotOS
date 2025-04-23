@@ -1,0 +1,39 @@
+
+# Ignore all files in the build directory
+build/*
+
+# Ignore all files in the cross-tools directory
+cross-tools/*
+
+# Ignore object files and executables
+*.o
+*.out
+*.exe
+*.elf
+*.bin
+
+# Ignore editor/IDE specific files
+.vscode/*
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.swp
+*~
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+
+# Ignore dependency directories
+node_modules/
+vendor/
+
+# Ignore log files
+*.log
+logs/
+
+# Ignore configuration files with sensitive information
+config.ini
+.env
