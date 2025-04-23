@@ -1,5 +1,5 @@
 #include "idt.h"
-#include "libc/include/string.h" // For memset
+#include "libc/include/memset.h" // For memset
 #include <stdint.h>
 #include "isr.h"
 #include "irq.h"

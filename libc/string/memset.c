@@ -1,5 +1,5 @@
 // libc/string/memset.c
-#include "libc/include/string.h" // Use relative path from implementation to its header
+#include "libc/include/memset.h" // Use relative path from implementation to its header
 #include <stdint.h>
 
 void* memset(void* bufptr, int value, size_t size) {
